@@ -1,0 +1,51 @@
+{
+  "name": "bmo",
+  "version": "0.0.1",
+  "description": "friendly neighborhood Discord bot",
+  "scripts": {
+    "start": "node ./src/main.js",
+    "lint": "eslint src/ test/",
+    "lint-fix": "eslint --fix src/ test/",
+    "test": "NODE_ENV=test mocha test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blaenk/bmo.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Jorge Israel Peña",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blaenk/bmo/issues"
+  },
+  "homepage": "https://github.com/blaenk/bmo#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
+    "chai-enzyme": "^0.5.0",
+    "dirty-chai": "^1.2.2",
+    "eslint": "^3.0.0",
+    "eslint-plugin-import": "^1.12.0",
+    "eslint-plugin-mocha": "^4.2.0",
+    "expect": "^1.20.1",
+    "mocha": "^3.0.0",
+    "mocha-lcov-reporter": "^1.2.0",
+    "sinon": "^1.17.4",
+    "sinon-as-promised": "^4.0.0",
+    "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.0",
+    "discord.js": "^9.3.0",
+    "dotenv": "^2.0.0",
+    "fluent-ffmpeg": "^2.1.0",
+    "ivona-node": "^0.4.0",
+    "moment": "^2.15.1",
+    "node-opus": "^0.2.2",
+    "request": "^2.75.0",
+    "ytdl-core": "^0.7.18"
+  }
+}
