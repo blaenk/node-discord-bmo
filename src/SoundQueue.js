@@ -104,6 +104,14 @@ class SoundQueue extends events.EventEmitter {
   stop() {
     if (this.dispatcher) {
       this.dispatcher.end();
+      this.queue = [];
+      this.isPlaying = false;
+    }
+  }
+
+  skip() {
+    if (this.dispatcher) {
+      this.dispatcher.end();
     }
   }
 
