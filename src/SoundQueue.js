@@ -231,7 +231,11 @@ class SoundQueue extends events.EventEmitter {
 
         return streamFunction()
           .then(inputStream => {
-            inputStream.pipe(fs.createWriteStream(cachedPath));
+            const cacheStream = fs.createWriteStream(cachedPath);
+
+            cacheStream.on('finish', () => console.log('finished caching'));
+
+            inputStream.pipe(cacheStream);
             inputStream.pipe(readStream);
 
             return readStream;
