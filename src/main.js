@@ -76,11 +76,61 @@ client.on('message', message => {
     return;
   }
 
+  const voiceChannel = client.channels.find('name', 'dev');
+
   if (message.author.id === BOT_OWNER) {
-    if (message.content === 'ping') {
-      console.log(message);
-      message.reply('pong');
-    }
+    command('say', message, (message, body) => {
+      soundQueue.speak(body, voiceChannel);
+    });
+
+    command('play', message, (message, body) => {
+      soundQueue.playRemote(body, voiceChannel);
+    });
+
+    command('skip', message, message => {
+      soundQueue.skip();
+      message.channel.sendMessage('sound queue skipped');
+    });
+
+    command('stop', message, message => {
+      soundQueue.stop();
+      message.channel.sendMessage('sound queue stopped');
+    });
+
+    command('pause', message, message => {
+      soundQueue.pause();
+      message.channel.sendMessage('sound queue paused');
+    });
+
+    command('resume', message, message => {
+      soundQueue.resume();
+      message.channel.sendMessage('sound queue resumed');
+    });
+
+    command('demo', message, () => {
+      const first = 'This is the first thing.';
+      const second = 'And this is the second thing.';
+      const third = 'And finally this is the third thing.';
+
+      const rimshot = 'https://www.youtube.com/watch?v=oShTJ90fC34';
+      const whatsThat = 'https://www.youtube.com/watch?v=HYNoFwLFqXM';
+      const dereferencing = 'https://www.youtube.com/watch?v=bLHL75H_VEM';
+      const yeah = 'https://www.youtube.com/watch?v=qj-Utu-dYTw';
+
+      soundQueue.playLocal('others-bmo-exclaim.mp3', voiceChannel);
+
+      soundQueue.speak(first, voiceChannel);
+      soundQueue.playRemote(whatsThat, voiceChannel);
+
+      soundQueue.speak(second, voiceChannel);
+      soundQueue.playRemote(dereferencing, voiceChannel);
+
+      soundQueue.speak(third, voiceChannel);
+      soundQueue.playRemote(yeah, voiceChannel);
+
+      soundQueue.playLocal('shutdown.mp3', voiceChannel);
+      soundQueue.playRemote(rimshot, voiceChannel);
+    });
   }
 });
 
