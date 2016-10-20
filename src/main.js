@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const Discord = require('discord.js');
+const _ = require('lodash');
 
 const SoundQueue = require('./SoundQueue');
 
@@ -45,6 +46,30 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     }
   }
 });
+
+function command(prefixes, message, handler) {
+  if (!Array.isArray(prefixes)) {
+    prefixes = [prefixes];
+  }
+
+  // longest matches first, otherwise the shorter matches
+  // will win out every time
+  prefixes = prefixes.sort((a, b) => a.length < b.length);
+
+  // construct regex once and capture it in closure
+  // ['google', 'g'] becomes /^\.(?:google|g)\s+/
+  const escaped = prefixes.map(_.escapeRegExp).join('|');
+  const constructed = String.raw`^\.(?:${escaped})\s*`;
+  const re = new RegExp(constructed);
+
+  const matches = re.exec(message.content);
+
+  if (matches) {
+    const body = message.content.slice(matches[0].length);
+
+    handler(message, body);
+  }
+}
 
 client.on('message', message => {
   if (message.author.bot) {
