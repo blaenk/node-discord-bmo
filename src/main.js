@@ -33,6 +33,10 @@ client.on('ready', () => {
   console.log('ready');
 });
 
+function friendlyName(member) {
+  return member.nickname || member.user.username;
+}
+
 client.on('voiceStateUpdate', (oldMember, newMember) => {
   if (oldMember.id === client.user.id) {
     console.log('ignoring bot event');
@@ -40,20 +44,24 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     return;
   }
 
+  // TODO
+  //
+  // this should pause any current stream, if any, then perform this action,
+  // then resume the paused stream
   if (oldMember.voiceChannel !== newMember.voiceChannel) {
     // It's better to wait a bit to allow the user to finish connecting.
-    const GRACE_PERIOD = 1000;
+    const GRACE_PERIOD = 1500;
 
     if (oldMember.voiceChannel) {
       client.setTimeout(() => {
-        soundQueue.speak(`${oldMember.user.username} has left the channel.`,
+        soundQueue.speak(`${friendlyName(oldMember)} has left the channel.`,
                          oldMember.voiceChannel);
       }, GRACE_PERIOD);
     }
 
     if (newMember.voiceChannel) {
       client.setTimeout(() => {
-        soundQueue.speak(`${newMember.user.username} has joined the channel.`,
+        soundQueue.speak(`${friendlyName(newMember)} has joined the channel.`,
                          newMember.voiceChannel);
       }, GRACE_PERIOD);
     }
@@ -89,35 +97,27 @@ client.on('message', message => {
     return;
   }
 
-  const voiceChannel = client.channels.find('name', 'dev');
+  const voiceChannel = client.channels.find('name', 'echodeck');
 
   if (message.author.id === BOT_OWNER) {
-    command('say', message, (message, body) => {
-      soundQueue.speak(body, voiceChannel);
-    });
+    command('lexicon', message, message => {
+      message.channel.sendMessage('updating lexicon ...');
 
-    command('play', message, (message, body) => {
-      soundQueue.playRemote(body, voiceChannel);
-    });
+      fs.readFileAsync('./data/lexicon.pls', { encoding: 'utf8' })
+        .then(content => {
+          ivona.putLexicon('lexicon', content)
+            // NOTE: ivona-node doesn't emit 'complete', use 'end'
+            .on('end', () => {
+              message.channel.sendMessage('lexicon successfully loaded');
 
-    command('skip', message, message => {
-      soundQueue.skip();
-      message.channel.sendMessage('sound queue skipped');
-    });
-
-    command('stop', message, message => {
-      soundQueue.stop();
-      message.channel.sendMessage('sound queue stopped');
-    });
-
-    command('pause', message, message => {
-      soundQueue.pause();
-      message.channel.sendMessage('sound queue paused');
-    });
-
-    command('resume', message, message => {
-      soundQueue.resume();
-      message.channel.sendMessage('sound queue resumed');
+              // Invalidate the speech cache.
+              fs.removeAsync('./data/speech/')
+                .finally(() => fs.mkdirs('./data/speech/'));
+            });
+        })
+        .catch(e => {
+          message.channel.sendMessage(e);
+        });
     });
 
     command('demo', message, () => {
@@ -145,6 +145,34 @@ client.on('message', message => {
       soundQueue.playRemote(rimshot, voiceChannel);
     });
   }
+
+  command('say', message, (message, body) => {
+    soundQueue.speak(body, voiceChannel);
+  });
+
+  command('play', message, (message, body) => {
+    soundQueue.playRemote(body, voiceChannel);
+  });
+
+  command('skip', message, message => {
+    soundQueue.skip();
+    message.channel.sendMessage('sound queue skipped');
+  });
+
+  command('stop', message, message => {
+    soundQueue.stop();
+    message.channel.sendMessage('sound queue stopped');
+  });
+
+  command('pause', message, message => {
+    soundQueue.pause();
+    message.channel.sendMessage('sound queue paused');
+  });
+
+  command('resume', message, message => {
+    soundQueue.resume();
+    message.channel.sendMessage('sound queue resumed');
+  });
 });
 
 client.on('guildMemberAdd', (guild, member) => {
