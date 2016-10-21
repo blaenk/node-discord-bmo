@@ -8,7 +8,6 @@ const events = require('events');
 const childProcess = require('child_process');
 
 const Bluebird = require('bluebird');
-const request = require('request');
 const ffmpeg = require('fluent-ffmpeg');
 const moment = require('moment');
 
@@ -200,7 +199,7 @@ class SoundQueue extends events.EventEmitter {
       .then(info => {
         console.log('info:', info);
 
-        return request.get(info.url);
+        return info.url;
       });
   }
 
