@@ -153,10 +153,13 @@ class SoundQueue extends events.EventEmitter {
     });
   }
 
+  // Don't cache remote urls since it's unlikely that they'll be played many
+  // times and they run the risk of being corrupted if the complete file isn't
+  // saved.
   playRemote(url, channel) {
     this.enqueue({
       channel,
-      stream: this.cacheStream('url', url, () => this.remoteAudioStream(url)),
+      stream: this.remoteAudioStream(url),
     });
   }
 
