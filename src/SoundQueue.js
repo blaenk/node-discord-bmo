@@ -9,7 +9,6 @@ const childProcess = require('child_process');
 
 const Bluebird = require('bluebird');
 const request = require('request');
-const Ivona = require('ivona-node');
 const ffmpeg = require('fluent-ffmpeg');
 const moment = require('moment');
 
@@ -22,22 +21,14 @@ const CHANNELS = 2;
 const FRAMES = 20;
 const WATER_MARK = FRAME_SIZE * CHANNELS * FRAMES;
 
-const {
-  IVONA_ACCESS_KEY,
-  IVONA_SECRET_KEY,
-} = process.env;
-
-const ivona = new Ivona({
-  accessKey: IVONA_ACCESS_KEY,
-  secretKey: IVONA_SECRET_KEY,
-});
-
 class SoundQueue extends events.EventEmitter {
-  constructor(client) {
+  constructor(client, ivona) {
     super();
 
-    this.isPlaying = false;
     this.client = client;
+    this.ivona = ivona;
+
+    this.isPlaying = false;
     this.queue = [];
   }
 
@@ -210,8 +201,21 @@ class SoundQueue extends events.EventEmitter {
       });
   }
 
+  // NOTE
+  //
+  // Using a lexicon is at odds with caching speech. For example, if we cache
+  // the speech phrase "The house is white." and we specify a lexical alias of
+  // "mansion" for "house", the cache key (input text) will remain the same even
+  // though the speech should be different.
+  //
+  // Simply invalidate the entire speech cache when a lexicon is updated? This
+  // would allow us to continue to use the cache in most cases.
   speechStream(text) {
-    return Bluebird.resolve(new stream.Readable().wrap(ivona.createVoice(text)));
+    return Bluebird.resolve(new stream.Readable().wrap(this.ivona.createVoice(text, {
+      body: {
+        LexiconNames: ['lexicon'],
+      },
+    })));
   }
 
   cacheStream(namespace, identifier, streamFunction) {

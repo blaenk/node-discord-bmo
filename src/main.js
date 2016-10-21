@@ -2,19 +2,32 @@
 
 require('dotenv').config();
 
+const fs = require('fs-extra');
+
+const Bluebird = require('bluebird');
 const Discord = require('discord.js');
+const Ivona = require('ivona-node');
 const _ = require('lodash');
 
 const SoundQueue = require('./SoundQueue');
 
+Bluebird.promisifyAll(fs);
+
 const {
   BOT_OWNER,
   DISCORD_TOKEN,
+  IVONA_ACCESS_KEY,
+  IVONA_SECRET_KEY,
 } = process.env;
+
+const ivona = new Ivona({
+  accessKey: IVONA_ACCESS_KEY,
+  secretKey: IVONA_SECRET_KEY,
+});
 
 const client = new Discord.Client();
 
-const soundQueue = new SoundQueue(client);
+const soundQueue = new SoundQueue(client, ivona);
 
 client.on('ready', () => {
   console.log('ready');
