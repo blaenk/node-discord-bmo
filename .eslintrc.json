@@ -62,7 +62,7 @@
     "linebreak-style": ["error", "unix"],
     "max-depth": ["error", {"max": 4}],
     "max-len": ["error", {"code": 100}],
-    "max-nested-callbacks": ["error", {"max": 3}],
+    "max-nested-callbacks": ["error", {"max": 5}],
     "max-params": ["error", {"max": 4}],
     "max-statements-per-line": ["error", {"max": 1}],
     "new-cap": ["error", {"capIsNew": false, "properties": false}],
