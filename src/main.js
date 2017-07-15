@@ -2,14 +2,17 @@
 
 require('dotenv').config();
 
-const fs = require('fs-extra');
+const url = require('url');
 
 const Bluebird = require('bluebird');
 const Discord = require('discord.js');
 const Ivona = require('ivona-node');
 const _ = require('lodash');
+const URI = require('urijs');
+const fs = require('fs-extra');
 
 const SoundQueue = require('./SoundQueue');
+const hn = require('./urls/hacker_news');
 
 Bluebird.promisifyAll(fs);
 
@@ -98,6 +101,33 @@ client.on('message', message => {
   }
 
   const voiceChannel = client.channels.find('name', 'echodeck');
+
+  // NOTE
+  //
+  // An embed is only created when the message doesn't _only_ consist of the
+  // link, otherwise it's not treated as an embed. Is this a limitation in
+  // discord.js or is this something discord itself does?
+  const embeddedLinks = message.embeds.filter(e => e.type === 'link').map(e => e.url);
+
+  const foundUrls = [];
+
+  URI.withinString(message.content, foundUrl => foundUrls.push(foundUrl));
+
+  const links = _.uniq(embeddedLinks.concat(foundUrls));
+
+  if (links.length > 0) {
+    for (const link of links) {
+      const parsed = url.parse(link, true);
+
+      if (parsed.hostname === 'news.ycombinator.com') {
+        hn.unfurl(parsed).then(formatted => {
+          console.log('formatted2:', formatted);
+
+          message.channel.sendMessage(formatted);
+        });
+      }
+    }
+  }
 
   if (message.author.id === BOT_OWNER) {
     command('lexicon', message, message => {

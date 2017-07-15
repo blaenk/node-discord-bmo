@@ -43,11 +43,14 @@
     "dotenv": "^2.0.0",
     "fluent-ffmpeg": "^2.1.0",
     "fs-extra": "^0.30.0",
+    "htmlparser2": "^3.9.2",
     "ivona-node": "^0.4.0",
     "lodash": "^4.16.4",
     "moment": "^2.15.1",
     "node-opus": "^0.2.2",
     "request": "^2.75.0",
+    "request-promise": "^4.1.1",
+    "urijs": "^1.18.2",
     "ytdl-core": "^0.7.18"
   }
 }
